@@ -119,6 +119,7 @@ export 'widgets/overlays/glass_modal_sheet.dart'
 export 'widgets/overlays/glass_toast.dart';
 export 'widgets/overlays/glass_popover.dart';
 // Widgets - Effects
+export 'widgets/effects/glass_adaptive_icon.dart';
 export 'widgets/effects/glass_materialize.dart';
 export 'widgets/effects/progressive_blur.dart';
 // Widgets - Surfaces
