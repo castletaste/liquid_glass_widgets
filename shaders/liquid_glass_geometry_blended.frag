@@ -54,6 +54,13 @@ void main() {
     float uThickness = uOpticalProps.z;
     float uBlend = uOpticalProps.w;
 
+    // Zero-thickness glass has no coverage. Guard before computing normals
+    // and height, which divide by thickness.
+    if (uThickness <= 0.0) {
+        fragColor = vec4(0.0);
+        return;
+    }
+
     float uNumShapes = uShapeSettings.x;
     float uDpr = uShapeSettings.y;
 
@@ -104,13 +111,19 @@ void main() {
         smoothing = max(1.0, 0.5 * uDpr);
         sdN -= max(1.0, uDpr / 3.0);
     }
-    float foregroundAlpha = smoothstep(smoothing * 0.5, -smoothing * 0.5, sdN);
+    // Keep both halves of the coverage ramp. Reversed smoothstep edges have
+    // undefined GLSL behaviour; use an increasing interval and invert it.
+    float foregroundAlpha = 1.0 - smoothstep(-smoothing * 0.5, smoothing * 0.5, sdN);
     if (foregroundAlpha < 0.01) {
         fragColor = vec4(0.0);
         return;
     }
 
-    float n_cos = max(uThickness + sdN, 0.0) / uThickness;
+    // Exterior AA texels use the boundary's geometry, while their coverage
+    // still fades with the signed distance. Cutting them off at sdN == 0
+    // jumps from half coverage to zero and makes circular edges jagged.
+    float interiorDistance = min(sdN, 0.0);
+    float n_cos = clamp((uThickness + interiorDistance) / uThickness, 0.0, 1.0);
     float n_sin = sqrt(max(0.0, 1.0 - n_cos * n_cos));
 
     // True surface normal from the SDF gradient — this is what we store.
@@ -118,14 +131,9 @@ void main() {
     // normal, which is why storing the normal (not displacement) fixes lighting.
     vec3 normal = normalize(vec3(dx * n_cos, dy * n_cos, n_sin));
 
-    if (sdN >= 0.0 || uThickness <= 0.0) {
-        fragColor = vec4(0.0);
-        return;
-    }
-
-    float x = uThickness + sdN;
+    float x = uThickness + interiorDistance;
     float sqrtTerm = sqrt(max(0.0, uThickness * uThickness - x * x));
-    float height = mix(sqrtTerm, uThickness, float(sdN < -uThickness));
+    float height = mix(sqrtTerm, uThickness, float(interiorDistance < -uThickness));
 
     // Encode normal.xy + height + alpha.
     // The render pass recomputes displacement = refract(incident, normal, 1/n)
