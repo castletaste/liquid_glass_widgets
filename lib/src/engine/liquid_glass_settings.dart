@@ -101,6 +101,7 @@ class LiquidGlassSettings {
     this.glassColor = const Color.fromARGB(0, 255, 255, 255),
     this.thickness = 20,
     this.blur = 5,
+    this.expandNativeEdge = true,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -143,6 +144,7 @@ class LiquidGlassSettings {
     required this.glassColor,
     required this.thickness,
     required this.blur,
+    this.expandNativeEdge = true,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -383,6 +385,11 @@ class LiquidGlassSettings {
   ///
   /// Only affects the Premium (Impeller) path.
   final double frost;
+
+  /// Whether the narrow edge used by frost/rimShade grows beyond the frame.
+  /// Defaults to the upstream iOS 27 contour. Disable for an iOS 26-sized
+  /// silhouette while retaining the same continuous, narrow antialiasing.
+  final bool expandNativeEdge;
 
   /// The effective frost taking visibility into account.
   double get effectiveFrost => frost * visibility;
@@ -741,6 +748,7 @@ class LiquidGlassSettings {
         glassColor: glassColor,
         thickness: thickness,
         blur: blur,
+        expandNativeEdge: expandNativeEdge,
         frost: frost,
         frostOpacity: frostOpacity,
         frostClamp: frostClamp,
@@ -858,6 +866,7 @@ class LiquidGlassSettings {
         glassColor: Color.lerp(a.glassColor, b.glassColor, t)!,
         thickness: lerpDouble(a.thickness, b.thickness, t)!,
         blur: lerpDouble(a.blur, b.blur, t)!,
+        expandNativeEdge: t < 0.5 ? a.expandNativeEdge : b.expandNativeEdge,
         frost: lerpDouble(a.frost, b.frost, t)!,
         frostOpacity: lerpDouble(a.frostOpacity, b.frostOpacity, t)!,
         frostClamp: lerpDouble(a.frostClamp, b.frostClamp, t)!,
@@ -914,6 +923,7 @@ class LiquidGlassSettings {
     Color? glassColor,
     double? thickness,
     double? blur,
+    bool? expandNativeEdge,
     double? frost,
     double? frostOpacity,
     double? frostClamp,
@@ -951,6 +961,7 @@ class LiquidGlassSettings {
         glassColor: glassColor ?? this.glassColor,
         thickness: thickness ?? this.thickness,
         blur: blur ?? this.blur,
+        expandNativeEdge: expandNativeEdge ?? this.expandNativeEdge,
         frost: frost ?? this.frost,
         frostOpacity: frostOpacity ?? this.frostOpacity,
         frostClamp: frostClamp ?? this.frostClamp,
@@ -995,6 +1006,7 @@ class LiquidGlassSettings {
         other.glassColor == glassColor &&
         other.thickness == thickness &&
         other.blur == blur &&
+        other.expandNativeEdge == expandNativeEdge &&
         other.frost == frost &&
         other.frostOpacity == frostOpacity &&
         other.frostClamp == frostClamp &&
@@ -1034,6 +1046,7 @@ class LiquidGlassSettings {
         glassColor,
         thickness,
         blur,
+        expandNativeEdge,
         frost,
         frostOpacity,
         frostClamp,

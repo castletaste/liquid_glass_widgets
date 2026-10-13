@@ -473,7 +473,8 @@ extension on LiquidGlassSettings {
     // RenderLiquidGlassBlendGroup and triggers a forced geometry rebuild via
     // its own setter. If blend is ever pulled into LiquidGlassSettings, add it
     // to this check at that point.
-    return effectiveThickness != other.effectiveThickness ||
+    return expandNativeEdge != other.expandNativeEdge ||
+        effectiveThickness != other.effectiveThickness ||
         refractiveIndex != other.refractiveIndex ||
         // A rim outline or a frost switches the matte's edge (uNativeEdge).
         (rimShade > 0 || frost > 0) != (other.rimShade > 0 || other.frost > 0);

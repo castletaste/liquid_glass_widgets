@@ -276,7 +276,9 @@ class RenderLiquidGlassBlendGroup extends RenderLiquidGlassGeometry
     geometryShader.setFloatUniforms(
       initialIndex: 8 + LiquidGlassBlendGroup.maxShapesPerLayer * 7,
       (value) => value.setFloat(
-        settings.rimShade > 0 || settings.frost > 0 ? 1.0 : 0.0,
+        settings.rimShade > 0 || settings.frost > 0
+            ? (settings.expandNativeEdge ? 1.0 : 2.0)
+            : 0.0,
       ),
     );
   }
@@ -366,8 +368,9 @@ class RenderLiquidGlassBlendGroup extends RenderLiquidGlassGeometry
     final smoothingPixels = nativeEdge
         ? math.max(1.0, 0.5 * devicePixelRatio)
         : 1.5 * math.max(1.0, devicePixelRatio);
-    final expansionPixels =
-        nativeEdge ? math.max(1.0, devicePixelRatio / 3.0) : 0.0;
+    final expansionPixels = nativeEdge && settings.expandNativeEdge
+        ? math.max(1.0, devicePixelRatio / 3.0)
+        : 0.0;
     final edgePadding = math.max(
       nativeEdge ? 3.0 : 0.0,
       expansionPixels + smoothingPixels / 2 + 1,

@@ -109,7 +109,8 @@ void main() {
         // point larger than its frame, the outline sitting just outside it,
         // so grow by a physical pixel at 3x; gatherShapeData makes room.
         smoothing = max(1.0, 0.5 * uDpr);
-        sdN -= max(1.0, uDpr / 3.0);
+        // Mode 2 keeps the iOS 26 silhouette without changing coverage.
+        if (uNativeEdge < 1.5) sdN -= max(1.0, uDpr / 3.0);
     }
     // Keep both halves of the coverage ramp. Reversed smoothstep edges have
     // undefined GLSL behaviour; use an increasing interval and invert it.
