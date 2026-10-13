@@ -8,6 +8,7 @@
 
 // ignore_for_file: public_member_api_docs
 
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -358,17 +359,23 @@ class RenderLiquidGlassBlendGroup extends RenderLiquidGlassGeometry
       }
     }
 
+    // Keep the complete exterior AA band plus a transparent texel for the
+    // render pass's clamped/bilinear sampler. Without padding the matte cuts
+    // off the ramp at the circle's cardinal points even if the shader keeps it.
+    final nativeEdge = settings.rimShade > 0 || settings.frost > 0;
+    final smoothingPixels = nativeEdge
+        ? math.max(1.0, 0.5 * devicePixelRatio)
+        : 1.5 * math.max(1.0, devicePixelRatio);
+    final expansionPixels =
+        nativeEdge ? math.max(1.0, devicePixelRatio / 3.0) : 0.0;
+    final edgePadding = math.max(
+      nativeEdge ? 3.0 : 0.0,
+      expansionPixels + smoothingPixels / 2 + 1,
+    ) / devicePixelRatio;
+
     return (
-      // With a rim outline or a frost the geometry pass draws the glass a
-      // physical pixel larger than the shape (uNativeEdge in
-      // liquid_glass_geometry_blended.frag): room for that plus a
-      // transparent border, since the matte's edge texels are what the
-      // shadow blurs and what the render pass clamps to outside the matte.
       (layerBounds ?? Rect.zero).inflate(
-        blend * .25 +
-            (settings.rimShade > 0 || settings.frost > 0
-                ? 3 / devicePixelRatio
-                : 0),
+        blend * .25 + edgePadding,
       ),
       shapes,
       anyShapeChangedInLayer,
