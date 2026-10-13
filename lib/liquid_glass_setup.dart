@@ -14,7 +14,6 @@ import 'widgets/shared/glass_adaptive_scope.dart';
 import 'widgets/shared/glass_effect.dart';
 import 'widgets/shared/glass_accessibility_scope.dart';
 import 'widgets/shared/lightweight_liquid_glass.dart';
-import 'widgets/effects/progressive_blur.dart';
 
 /// Entry point and configuration for the Liquid Glass Widgets library.
 ///
@@ -113,7 +112,6 @@ class LiquidGlassWidgets {
     final precacheFutures = <Future<void>>[
       LightweightLiquidGlass.preWarm(),
       GlassEffect.preWarm(),
-      ProgressiveBlur.preload(),
     ];
 
     // On platforms that support premium glass rendering (iOS Metal, macOS Metal,
