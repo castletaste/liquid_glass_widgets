@@ -147,6 +147,9 @@ uniform vec4 uFrost;
 // LiquidGlassSettings.bodyShade.
 uniform float uBodyShade;
 
+// Slot 46: logical-pixel edge light width; 0 retains the upstream profile.
+uniform float uEdgeLightWidth;
+
 uniform sampler2D uBackgroundTexture;
 uniform sampler2D uGeometryTexture;
 
@@ -696,6 +699,10 @@ void main() {
     float thicknessScale   = clamp(baseScale / max(uThickness, 1.0), 1.0, 4.0);
     float edgeThreshold    = mix(0.8, 0.5, 1.0 / thicknessScale);
     float edgeFactor       = uThickness < 0.01 ? 0.0 : 1.0 - smoothstep(0.0, edgeThreshold, normalizedHeight);
+    if (uEdgeLightWidth > 0.0 && uThickness >= 0.01) {
+        // The transport scale is DPR / 3; rimDist is in physical pixels.
+        edgeFactor = 1.0 - smoothstep(0.0, uEdgeLightWidth * 3.0 * dprScale, rimDist);
+    }
 
     // VQ5: Meniscus darkening — three physics improvements.
     //

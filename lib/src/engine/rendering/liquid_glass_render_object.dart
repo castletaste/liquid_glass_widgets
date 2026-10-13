@@ -624,6 +624,8 @@ abstract class LiquidGlassRenderObject extends RenderProxyBox {
               max(settings.blurWeight, 0.0),
               // Slot 45: uBodyShade.
               settings.effectiveBodyShade.clamp(0.0, 1.0),
+          // Slot 46: same in backdrop and explicit capture paths.
+          max(settings.edgeLightWidth, 0.0),
             ]);
           })
           ..setImageSampler(
@@ -799,6 +801,8 @@ abstract class LiquidGlassRenderObject extends RenderProxyBox {
           0.0, 0.0, 0.0, 1.0,
           // Slot 45: uBodyShade.
           settings.effectiveBodyShade.clamp(0.0, 1.0),
+          // Slot 46: same in backdrop and explicit capture paths.
+          max(settings.edgeLightWidth, 0.0),
         ]);
       })
       // Slot 0: captured background image (replaces the BackdropFilter read).

@@ -102,6 +102,7 @@ class LiquidGlassSettings {
     this.thickness = 20,
     this.blur = 5,
     this.expandNativeEdge = true,
+    this.edgeLightWidth = 0.0,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -145,6 +146,7 @@ class LiquidGlassSettings {
     required this.thickness,
     required this.blur,
     this.expandNativeEdge = true,
+    this.edgeLightWidth = 0.0,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -390,6 +392,12 @@ class LiquidGlassSettings {
   /// Defaults to the upstream iOS 27 contour. Disable for an iOS 26-sized
   /// silhouette while retaining the same continuous, narrow antialiasing.
   final bool expandNativeEdge;
+
+  /// Width in logical pixels of the specular/Fresnel edge-light falloff.
+  /// Zero retains the upstream thickness-based profile. A positive width
+  /// confines the light to a consistent hairline across sizes and densities;
+  /// it does not change geometry, refraction or the separate rimLight lobes.
+  final double edgeLightWidth;
 
   /// The effective frost taking visibility into account.
   double get effectiveFrost => frost * visibility;
@@ -749,6 +757,7 @@ class LiquidGlassSettings {
         thickness: thickness,
         blur: blur,
         expandNativeEdge: expandNativeEdge,
+        edgeLightWidth: edgeLightWidth,
         frost: frost,
         frostOpacity: frostOpacity,
         frostClamp: frostClamp,
@@ -867,6 +876,7 @@ class LiquidGlassSettings {
         thickness: lerpDouble(a.thickness, b.thickness, t)!,
         blur: lerpDouble(a.blur, b.blur, t)!,
         expandNativeEdge: t < 0.5 ? a.expandNativeEdge : b.expandNativeEdge,
+        edgeLightWidth: lerpDouble(a.edgeLightWidth, b.edgeLightWidth, t)!,
         frost: lerpDouble(a.frost, b.frost, t)!,
         frostOpacity: lerpDouble(a.frostOpacity, b.frostOpacity, t)!,
         frostClamp: lerpDouble(a.frostClamp, b.frostClamp, t)!,
@@ -924,6 +934,7 @@ class LiquidGlassSettings {
     double? thickness,
     double? blur,
     bool? expandNativeEdge,
+    double? edgeLightWidth,
     double? frost,
     double? frostOpacity,
     double? frostClamp,
@@ -962,6 +973,7 @@ class LiquidGlassSettings {
         thickness: thickness ?? this.thickness,
         blur: blur ?? this.blur,
         expandNativeEdge: expandNativeEdge ?? this.expandNativeEdge,
+        edgeLightWidth: edgeLightWidth ?? this.edgeLightWidth,
         frost: frost ?? this.frost,
         frostOpacity: frostOpacity ?? this.frostOpacity,
         frostClamp: frostClamp ?? this.frostClamp,
@@ -1007,6 +1019,7 @@ class LiquidGlassSettings {
         other.thickness == thickness &&
         other.blur == blur &&
         other.expandNativeEdge == expandNativeEdge &&
+        other.edgeLightWidth == edgeLightWidth &&
         other.frost == frost &&
         other.frostOpacity == frostOpacity &&
         other.frostClamp == frostClamp &&
@@ -1047,6 +1060,7 @@ class LiquidGlassSettings {
         thickness,
         blur,
         expandNativeEdge,
+        edgeLightWidth,
         frost,
         frostOpacity,
         frostClamp,
