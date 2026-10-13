@@ -812,7 +812,7 @@ void main() {
             // Scaled by DPR (uEdgeConfig.z contains dpr / 3.0).
             float dpr = max(1.0, uEdgeConfig.z * 3.0);
             float touchRadius = max(70.0 * dpr, uSize.y * 1.5);
-            float distFactor = smoothstep(touchRadius, 0.0, touchDist);
+            float distFactor = 1.0 - smoothstep(0.0, touchRadius, touchDist);
 
             if (distFactor > 0.001 && touchDist > 1.0) {
                 vec2 touchDir = toFragPx / touchDist;
