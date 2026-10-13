@@ -626,6 +626,9 @@ abstract class LiquidGlassRenderObject extends RenderProxyBox {
               settings.effectiveBodyShade.clamp(0.0, 1.0),
           // Slot 46: same in backdrop and explicit capture paths.
           max(settings.edgeLightWidth, 0.0),
+          // Slot 47: opt-in coherent neutral material adaptation.
+          settings.adaptiveTone.clamp(0.0, 1.0),
+          settings.visibility.clamp(0.0, 1.0),
             ]);
           })
           ..setImageSampler(
@@ -803,6 +806,9 @@ abstract class LiquidGlassRenderObject extends RenderProxyBox {
           settings.effectiveBodyShade.clamp(0.0, 1.0),
           // Slot 46: same in backdrop and explicit capture paths.
           max(settings.edgeLightWidth, 0.0),
+          // Slot 47: opt-in coherent neutral material adaptation.
+          settings.adaptiveTone.clamp(0.0, 1.0),
+          settings.visibility.clamp(0.0, 1.0),
         ]);
       })
       // Slot 0: captured background image (replaces the BackdropFilter read).

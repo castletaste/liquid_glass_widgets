@@ -150,6 +150,11 @@ uniform float uBodyShade;
 // Slot 46: logical-pixel edge light width; 0 retains the upstream profile.
 uniform float uEdgeLightWidth;
 
+// Slot 47: opt-in, whole-surface neutral material adaptation.
+uniform float uAdaptiveTone;
+// Slot 48: fade the adaptive body along with the existing material channels.
+uniform float uMaterialVisibility;
+
 uniform sampler2D uBackgroundTexture;
 uniform sampler2D uGeometryTexture;
 
@@ -306,6 +311,15 @@ vec3 frostAt(vec2 p, vec2 q, vec2 invSize) {
               : k < 0.0 ? min(ghost, cloud - k)
               : ghost;
     return mix(held, cloud, clamp(uFrost.x, 0.0, 1.0));
+}
+
+// One already-blurred texel per probe. Reusing the cloud avoids another blur
+// or a CPU readback. All fragments use the same probes, so a glyph/background
+// edge cannot split the material into locally light and dark patches.
+vec3 toneProbe(vec2 position, vec2 invSize) {
+    vec2 p = floor(position);
+    if (uFrost.x > 0.0) p.y -= mod(p.y + 1.0, 2.0);
+    return texelAt(p, invSize);
 }
 
 void main() {
@@ -606,6 +620,27 @@ void main() {
     }
 
     vec4 bodyGlassColor = uGlassColor;
+    float adaptivePolarity = 0.0;
+    if (uAdaptiveTone > 0.0) {
+        vec2 center = uGeometryOffset + uGeometrySize * 0.5 + uCaptureOffset;
+        vec2 span = uGeometrySize * 0.22;
+        vec3 tone = (toneProbe(center, invTexSize)
+            + toneProbe(center + span, invTexSize)
+            + toneProbe(center - span, invTexSize)
+            + toneProbe(center + vec2(span.x, -span.y), invTexSize)
+            + toneProbe(center + vec2(-span.x, span.y), invTexSize)) * 0.2;
+        // Fitted to neutral iOS 26.3 fields: #c0 remains dark, #ea is light.
+        // This is an approximation, not Apple's private adaptive algorithm.
+        float sceneLuma = dot(tone, LUMA_WEIGHTS);
+        float polarity = smoothstep(0.80, 0.90, sceneLuma);
+        adaptivePolarity = polarity * uAdaptiveTone * uMaterialVisibility;
+        float darkLift = 0.1 + 0.075 * (1.0 - smoothstep(0.0, 0.15, sceneLuma));
+        float darkWeight = 0.4 + 0.14 * smoothstep(0.50, 0.75, sceneLuma);
+        vec4 adaptiveBody = mix(vec4(vec3(darkLift), darkWeight),
+                               vec4(0.975, 0.975, 0.975, 0.94), polarity);
+        adaptiveBody.a *= uMaterialVisibility;
+        bodyGlassColor = mix(bodyGlassColor, adaptiveBody, uAdaptiveTone);
+    }
     bodyGlassColor.a *= 1.0 - hairline;
     vec4 finalColor = applyGlassColor(refractColor, bodyGlassColor, uBodyMode);
 
@@ -702,6 +737,12 @@ void main() {
     if (uEdgeLightWidth > 0.0 && uThickness >= 0.01) {
         // The transport scale is DPR / 3; rimDist is in physical pixels.
         edgeFactor = 1.0 - smoothstep(0.0, uEdgeLightWidth * 3.0 * dprScale, rimDist);
+    }
+    // The bright neutral material has a narrow, all-around white rim. Keep
+    // this inside the SDF coverage so the exterior AA ramp stays continuous.
+    if (adaptivePolarity > 0.0 && uThickness >= 0.01) {
+        float rim = 1.0 - smoothstep(0.0, 2.25 * dprScale, rimDist);
+        finalColor.rgb = mix(finalColor.rgb, vec3(1.0), rim * adaptivePolarity);
     }
 
     // VQ5: Meniscus darkening — three physics improvements.

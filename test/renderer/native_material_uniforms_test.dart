@@ -18,12 +18,12 @@ void main() {
     expect(() => shader.setFloat(index + 1, 0), throwsA(anything));
   });
 
-  test('uEdgeLightWidth ends the render shader float uniforms at slot 46',
+  test('uMaterialVisibility ends the render shader float uniforms at slot 48',
       () async {
     final shader =
         (await ui.FragmentProgram.fromAsset(ShaderKeys.liquidGlassRender))
             .fragmentShader();
-    shader.setFloat(46, 1);
-    expect(() => shader.setFloat(47, 0), throwsA(anything));
+    shader.setFloat(48, 1);
+    expect(() => shader.setFloat(49, 0), throwsA(anything));
   });
 }

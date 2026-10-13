@@ -103,6 +103,7 @@ class LiquidGlassSettings {
     this.blur = 5,
     this.expandNativeEdge = true,
     this.edgeLightWidth = 0.0,
+    this.adaptiveTone = 0.0,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -147,6 +148,7 @@ class LiquidGlassSettings {
     required this.blur,
     this.expandNativeEdge = true,
     this.edgeLightWidth = 0.0,
+    this.adaptiveTone = 0.0,
     this.frost = 0.0,
     this.frostOpacity = 1.0,
     this.frostClamp = 0.0,
@@ -398,6 +400,12 @@ class LiquidGlassSettings {
   /// confines the light to a consistent hairline across sizes and densities;
   /// it does not change geometry, refraction or the separate rimLight lobes.
   final double edgeLightWidth;
+
+  /// Backdrop-driven neutral material polarity, from 0 (disabled) to 1.
+  /// Intended for an isolated surface with a matching adaptive foreground.
+  /// The five blurred samples cover the geometry bounds as one whole control;
+  /// do not enable for a blend group of unrelated controls or a coloured tint.
+  final double adaptiveTone;
 
   /// The effective frost taking visibility into account.
   double get effectiveFrost => frost * visibility;
@@ -758,6 +766,7 @@ class LiquidGlassSettings {
         blur: blur,
         expandNativeEdge: expandNativeEdge,
         edgeLightWidth: edgeLightWidth,
+        adaptiveTone: adaptiveTone,
         frost: frost,
         frostOpacity: frostOpacity,
         frostClamp: frostClamp,
@@ -877,6 +886,7 @@ class LiquidGlassSettings {
         blur: lerpDouble(a.blur, b.blur, t)!,
         expandNativeEdge: t < 0.5 ? a.expandNativeEdge : b.expandNativeEdge,
         edgeLightWidth: lerpDouble(a.edgeLightWidth, b.edgeLightWidth, t)!,
+        adaptiveTone: lerpDouble(a.adaptiveTone, b.adaptiveTone, t)!,
         frost: lerpDouble(a.frost, b.frost, t)!,
         frostOpacity: lerpDouble(a.frostOpacity, b.frostOpacity, t)!,
         frostClamp: lerpDouble(a.frostClamp, b.frostClamp, t)!,
@@ -935,6 +945,7 @@ class LiquidGlassSettings {
     double? blur,
     bool? expandNativeEdge,
     double? edgeLightWidth,
+    double? adaptiveTone,
     double? frost,
     double? frostOpacity,
     double? frostClamp,
@@ -974,6 +985,7 @@ class LiquidGlassSettings {
         blur: blur ?? this.blur,
         expandNativeEdge: expandNativeEdge ?? this.expandNativeEdge,
         edgeLightWidth: edgeLightWidth ?? this.edgeLightWidth,
+        adaptiveTone: adaptiveTone ?? this.adaptiveTone,
         frost: frost ?? this.frost,
         frostOpacity: frostOpacity ?? this.frostOpacity,
         frostClamp: frostClamp ?? this.frostClamp,
@@ -1020,6 +1032,7 @@ class LiquidGlassSettings {
         other.blur == blur &&
         other.expandNativeEdge == expandNativeEdge &&
         other.edgeLightWidth == edgeLightWidth &&
+        other.adaptiveTone == adaptiveTone &&
         other.frost == frost &&
         other.frostOpacity == frostOpacity &&
         other.frostClamp == frostClamp &&
@@ -1061,6 +1074,7 @@ class LiquidGlassSettings {
         blur,
         expandNativeEdge,
         edgeLightWidth,
+        adaptiveTone,
         frost,
         frostOpacity,
         frostClamp,
